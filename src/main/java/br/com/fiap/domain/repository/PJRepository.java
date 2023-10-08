@@ -36,9 +36,9 @@ public class PJRepository implements Repository<PJ, Long>{
             rs = st.executeQuery(sql);
             if (rs.isBeforeFirst()) {
                 while (rs.next()) {
-                    Long id = rs.getLong("ID_JURIDICA");
-                    String nome = rs.getString("NM_JURIDICA");
-                    LocalDate nascimento = rs.getDate("DT_FUNDACAO").toLocalDate();
+                    Long id = rs.getLong("ID_PESSOA");
+                    String nome = rs.getString("NM_PESSOA");
+                    LocalDate nascimento = rs.getDate("DT_NASCIMENTO").toLocalDate();
                     String tipo = rs.getString("TP_PESSOA");
                     String CNPJ = rs.getString("NR_CNPJ");
                     list.add(new PJ(id, nome, nascimento, CNPJ));
@@ -66,8 +66,8 @@ public class PJRepository implements Repository<PJ, Long>{
             rs = ps.executeQuery();
             if (rs.isBeforeFirst()) {
                 while (rs.next()) {
-                    String nome = rs.getString("NM_JURIDICA");
-                    LocalDate nascimento = rs.getDate("DT_FUNDACAO").toLocalDate();
+                    String nome = rs.getString("NM_PESSOA");
+                    LocalDate nascimento = rs.getDate("DT_NASCIMENTO").toLocalDate();
                     String CNPJ = rs.getString("NR_CNPJ");
                     pessoa = new PJ(id, nome, nascimento, CNPJ);
                 }
@@ -86,7 +86,7 @@ public class PJRepository implements Repository<PJ, Long>{
     @Override
     public PJ persiste(PJ pj) {
 
-        var sql = "BEGIN INSERT INTO TB_PJ (NM_JURIDICA , DT_FUNDACAO, TP_PESSOA, NR_CNPJ) VALUES (?,?,?,?) returning ID_JURIDICA into ?; END;";
+        var sql = "BEGIN INSERT INTO TB_PJ (NM_PESSOA , DT_NASCIMENTO, TP_PESSOA, NR_CNPJ) VALUES (?,?,?,?) returning ID_JURIDICA into ?; END;";
 
         Connection con = factory.getConnection();
         CallableStatement cs = null;
@@ -98,8 +98,11 @@ public class PJRepository implements Repository<PJ, Long>{
             cs.setDate(2, Date.valueOf(pj.getNascimento()));
             cs.setString(3, pj.getTipo());
             cs.setString(4, pj.getCNPJ());
+
             cs.registerOutParameter(5, Types.BIGINT);
+
             cs.executeUpdate();
+
             pj.setId(cs.getLong(5));
 
         } catch (SQLException e) {
